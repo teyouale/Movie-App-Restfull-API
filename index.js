@@ -12,7 +12,15 @@ const genres = [
 ];
 
 app.get('/', (req, res) => res.send('Hello World!'));
+
 app.get('/api/genres', (req, res) => res.send(genres));
+
+app.get('/api/genres/:id', (req, res) => {
+	const genre = genres.find(c => c.id === parseInt(req.params.id));
+	if (!genre) return res.status(404).send('Invaild ID');
+	res.status(200).send(genre);
+});
+
 app.post('/api/genres', (req, res) => {
 	const { error } = validateGeners(req.body);
 	if (error) res.status(400).send(error.details[0].message);
@@ -23,6 +31,30 @@ app.post('/api/genres', (req, res) => {
 	genres.push(genre);
 	res.status(200).send(genre);
 });
+
+app.put('/api/genres/:id', (req, res) => {
+	const genre = genres.find(c => c.id === parseInt(req.params.id));
+	if (!genre) return res.status(404).send('Invaild ID');
+
+	const { error } = validateGeners(req.body);
+	if (error) return res.status(400).send(error.details[0].message);
+	genre.name = req.body.name;
+
+	res.status(200).send(genre);
+});
+
+app.delete('/api/genres/:id', (req, res) => {
+	const genre = genres.find(c => c.id === parseInt(req.params.id));
+	if (!genre) return res.status(404).send('Invaild ID');
+
+	const index = genres.indexOf(genre);
+	console.log('index', index);
+
+	genres.splice(index, 1);
+
+	res.status(200).send(genres);
+});
+
 app.listen(port, () => console.log(`Example app listening on ${port} port!`));
 
 function validateGeners(genre) {
